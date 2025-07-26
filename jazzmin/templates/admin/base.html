@@ -200,7 +200,7 @@
         {% if jazzmin_settings.show_sidebar %}
             {% get_side_menu as side_menu_list %}
 
-            <aside class="main-sidebar elevation-4" style="background-color: var(--background);" id="jazzy-sidebar">
+            <aside class="main-sidebar elevation-4 {{ jazzmin_ui.navbar_classes }}"  id="jazzy-sidebar">
                 <style>
 
                     #site-name-2 {
@@ -230,7 +230,7 @@
                     
 
                 </style>
-                <a id="site-name-2" href="{% url 'admin:index' %}"><span style="text-transform: uppercase; display: flex; align-items: center; font-size: 30px; color: var(--seondary); font-weight: 500;">{% logo settings.theme.logos.logo_sidebar settings.theme %}</span></a>
+                <a id="site-name-2" href="{% url 'admin:index' %}"><span style="text-transform: uppercase; display: flex; align-items: center; font-size: 30px; color: var(--secondary); font-weight: 500;">{% logo settings.theme.logos.logo_sidebar settings.theme %}</span></a>
 
 
                 <div class="sidebar">
