@@ -50,11 +50,10 @@
     {% block extrastyle %} {% endblock %}
     {% block extrahead %} {% endblock %}
 </head>
-<body class="hold-transition{% if not jazzmin_settings.show_sidebar %} no-sidebar{% else %} sidebar-mini{% endif %} {% sidebar_status request %} {% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %} {{ jazzmin_ui.body_classes }} {% if jazzmin_ui.dark_mode_theme %}theme-dark{% endif %}" data-admin-utc-offset="{% now "Z" %}">
-
+<body class="hold-transition {% if not jazzmin_settings.show_sidebar %} no-sidebar{% else %} sidebar-mini{% endif %} {% sidebar_status request %} {% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %} {{ jazzmin_ui.body_classes }} {% if jazzmin_ui.dark_mode_theme %}theme-dark{% endif %}" data-admin-utc-offset="{% now "Z" %}" {% if request.user.is_anonymous %}style="overflow-y: hidden;"{% endif %}>
+{% if not is_popup and not request.user.is_anonymous %}
 <div class="wrapper">
 
-    {% if not is_popup %}
         <nav class="main-header navbar navbar-expand {{ jazzmin_ui.navbar_classes }}" id="jazzy-navbar">
             <ul class="navbar-nav">
 
@@ -79,7 +78,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars" style="font-size: 20px;"></i><span id="site-name" style="text-transform: uppercase; font-size: 25px; color: var(--primary); margin-left: 10px;"><!--{% logo settings.theme.logos.logo_navbar settings.theme %}-->MENU</span></a>
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><!--<i class="fas fa-bars" style="font-size: 20px;"></i>--><span id="site-name" style="text-transform: uppercase; font-size: 25px; color: var(--primary);">{% logo settings.theme.logos.logo_navbar settings.theme %}</span></a>
                 </li>
                 
                 {% get_top_menu user request.current_app|default:"admin" as top_menu %}
@@ -192,15 +191,13 @@
                     </div>
                 </li>
 
-                {% endif %}
-                
             </ul>
         </nav>
         {% block sidebar %}
         {% if jazzmin_settings.show_sidebar %}
             {% get_side_menu as side_menu_list %}
 
-            <aside class="main-sidebar elevation-4 {{ jazzmin_ui.navbar_classes }}"  id="jazzy-sidebar">
+            <aside class="main-sidebar elevation-4 {{ jazzmin_ui.navbar_classes }}">
                 <style>
 
                     #site-name-2 {
@@ -230,7 +227,7 @@
                     
 
                 </style>
-                <a id="site-name-2" href="{% url 'admin:index' %}"><span style="text-transform: uppercase; display: flex; align-items: center; font-size: 30px; color: var(--secondary); font-weight: 500;">{% logo settings.theme.logos.logo_sidebar settings.theme %}</span></a>
+                <a id="site-name-2" data-widget="pushmenu" href="#" role="button"><span style="text-transform: uppercase; display: flex; align-items: center; font-size: 30px; color: var(--secondary); font-weight: 500;">{% logo settings.theme.logos.logo_sidebar settings.theme %}</span></a>
 
 
                 <div class="sidebar">
@@ -311,69 +308,80 @@
         {% endif %}
         {% endblock %}
     {% endif %}
+    {% endif %}
 
-    <div class="content-wrapper" {% if is_popup %}style="margin-left:0px; padding-top: 20px;"{% endif %}>
-        {% block page_content %}
-            {% if not is_popup %}
-            <div class="content border-bottom mb-2">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-12 col-md-auto d-flex flex-grow-1 align-items-center">
-                            <h1 class="h4 m-0 pr-3 mr-3 border-right">{% block content_title %}{% endblock %}</h1>
-                            {% block breadcrumbs %}{% endblock %}
+    
+            
+            
+            <div class="content-wrapper" {% if is_popup and not request.user.is_anonymous %}style="margin-left:0px; padding-top: 20px;"{% endif %}>
+            {% block page_content %}
+                {% if not is_popup and not request.user.is_anonymous %}
+                <div class="content border-bottom mb-2">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-12 col-md-auto d-flex flex-grow-1 align-items-center">
+                                <h1 class="h4 m-0 pr-3 mr-3 border-right">{% block content_title %}{% endblock %}</h1>
+                                {% block breadcrumbs %}{% endblock %}
+                            </div>
+                            {% block page_actions %}{% endblock %}
                         </div>
-                        {% block page_actions %}{% endblock %}
                     </div>
                 </div>
-            </div>
-            {% endif %}
+                {% endif %}
 
-            <div class="content">
-                <div class="container-fluid">
-                    <section id="content" class="content">
-                        {% block messages %}
-                            {% for message in messages %}
-                                {% if message.tags == 'success' %}
-                                    <div class="alert alert-success alert-dismissible">
-                                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×
-                                        </button>
-                                        <i class="icon fa fa-check"></i>{{ message|capfirst }}
-                                    </div>
-                                {% elif message.tags == 'error' %}
-                                    <div class="alert alert-danger alert-dismissible">
-                                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×
-                                        </button>
-                                        <i class="icon fa fa-ban"></i>{{ message|capfirst }}
-                                    </div>
-                                {% elif message.tags == 'warning' %}
-                                    <div class="alert alert-warning alert-dismissible">
-                                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×
-                                        </button>
-                                        <i class="icon fa fa-exclamation-triangle"></i>{{ message|capfirst }}
-                                    </div>
-                                {% elif message.tags == 'info' %}
-                                    <div class="alert alert-info alert-dismissible">
-                                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×
-                                        </button>
-                                        <i class="icon fa fa-info"></i>{{ message|capfirst }}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        {% endblock messages %}
-                        <div class="row">
-                            {% block content %} {% endblock %}
-                        </div>
-                    </section>
+                <div class="content">
+                    <div class="container-fluid">
+                        <section id="content" class="content">
+                            {% block messages %}
+                                {% for message in messages %}
+                                    {% if message.tags == 'success' %}
+                                        <div class="alert alert-success alert-dismissible">
+                                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×
+                                            </button>
+                                            <i class="icon fa fa-check"></i>{{ message|capfirst }}
+                                        </div>
+                                    {% elif message.tags == 'error' %}
+                                        <div class="alert alert-danger alert-dismissible">
+                                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×
+                                            </button>
+                                            <i class="icon fa fa-ban"></i>{{ message|capfirst }}
+                                        </div>
+                                    {% elif message.tags == 'warning' %}
+                                        <div class="alert alert-warning alert-dismissible">
+                                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×
+                                            </button>
+                                            <i class="icon fa fa-exclamation-triangle"></i>{{ message|capfirst }}
+                                        </div>
+                                    {% elif message.tags == 'info' %}
+                                        <div class="alert alert-info alert-dismissible">
+                                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×
+                                            </button>
+                                            <i class="icon fa fa-info"></i>{{ message|capfirst }}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endblock messages %}
+                            
+                            <div {% if request.user.is_anonymous %} style=" margin-top: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center;" {% endif %} class="{% if request.user.is_anonymous %} column {% else %} row {% endif %}">
+                                {% block content %} {% endblock %}
+                            </div>
+
+                            
+                        </section>
+                    </div>
                 </div>
-            </div>
 
 
-        {% endblock %}
-    </div>
+            {% endblock %}
+        </div>
+        
+    
 
+    
+    
 {% block footer %}
     {% if not is_popup %}
-        <footer class="main-footer {{ jazzmin_ui.footer_classes }}">
+        <footer class="main-footer {{ jazzmin_ui.footer_classes }}" style="position: fixed; bottom: 0px; width: 100vw;">
             <div class="float-right d-none d-sm-inline">
                 <b>{% trans 'LTS' %} - 0.0.1</b>
             </div>
